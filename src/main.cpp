@@ -5,7 +5,36 @@
 #include "common/config.h"
 #include "common/logger.h"
 #include "core/kv_store.h"
+/*
+KVStore kv;
 
+// 1. 普通 set/get
+kv.set("a", "1");
+assert(kv.get("a").value() == "1");
+assert(kv.ttl("a") == -1);
+
+// 2. 带 ttl set
+kv.set("b", "2", 100);
+assert(kv.exists("b") == true);
+std::this_thread::sleep_for(std::chrono::milliseconds(150));
+assert(kv.get("b") == std::nullopt);
+assert(kv.ttl("b") == -2);
+
+// 3. expire 已有 key
+kv.set("c", "3");
+assert(kv.expire("c", 1000) == true);
+assert(kv.ttl("c") >= 0);
+
+// 4. 覆盖清除 ttl
+kv.set("d", "4", 1000);
+kv.set("d", "5");
+assert(kv.ttl("d") == -1);
+
+// 5. ttl<=0
+kv.set("e", "6");
+assert(kv.expire("e", 0) == true);
+assert(kv.exists("e") == false);
+*/
 int main() {
     using namespace lightkv;
 
