@@ -40,3 +40,14 @@ lightkv/
 │   │   └── kv_store.cpp
 └── scripts/
     └── build.sh
+## Stage 4 Design
+
+- Main storage uses sharded `unordered_map`.
+- Hot data is accelerated by a global LRU cache.
+- Read path:
+  - check cache first
+  - fallback to main store on miss
+  - refill cache only for keys without TTL
+- TTL is validated in the main store.
+- Keys with TTL are never cached, which avoids stale cache hits after expiration.
+- On TTL updates or deletes, cache entries are invalidated.

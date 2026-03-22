@@ -29,7 +29,7 @@ void KVStore::set(const std::string& key, const std::string& value, std::int64_t
         return;
     }
 
-    // TTL 以主存为准，带过期时间的数据先不直接信任旧缓存状态
+    // 带 TTL 的 key 不进入 cache，避免过期后 cache 脏命中
     cache_.erase(key);
 }
 
@@ -39,14 +39,20 @@ std::optional<std::string> KVStore::get(const std::string& key) {
         return cached;
     }
 
-    auto value = shard_for(key).get(key);
-    if (value.has_value()) {
-        cache_.put(key, value.value());
+    auto result = shard_for(key).get_with_meta(key);
+    if (!result.found) {
+        cache_.erase(key);
+        return std::nullopt;
+    }
+
+    // 只缓存无 TTL 的 key
+    if (result.cacheable) {
+        cache_.put(key, result.value);
     } else {
         cache_.erase(key);
     }
 
-    return value;
+    return result.value;
 }
 
 bool KVStore::del(const std::string& key) {
@@ -56,7 +62,6 @@ bool KVStore::del(const std::string& key) {
 }
 
 bool KVStore::exists(const std::string& key) {
-    // 不能直接信 cache，因为 cache 不维护 TTL 元数据
     const bool ok = shard_for(key).exists(key);
     if (!ok) {
         cache_.erase(key);

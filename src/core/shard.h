@@ -11,6 +11,12 @@
 
 namespace lightkv {
 
+struct ShardGetResult {
+    bool found{false};
+    std::string value;
+    bool cacheable{false};
+};
+
 class Shard {
 public:
     Shard() = default;
@@ -20,6 +26,8 @@ public:
     void set(const std::string& key, const std::string& value, std::int64_t ttl_ms);
 
     std::optional<std::string> get(const std::string& key);
+    ShardGetResult get_with_meta(const std::string& key);
+
     bool del(const std::string& key);
     bool exists(const std::string& key);
 
@@ -32,7 +40,6 @@ public:
 
 private:
     bool is_expired_unsafe(const Entry& entry, std::int64_t now_ms) const;
-    bool erase_if_expired_with_unique_lock(const std::string& key);
 
 private:
     mutable std::shared_mutex mutex_;

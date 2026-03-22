@@ -46,16 +46,28 @@ void Shard::set(const std::string& key, const std::string& value, std::int64_t t
 }
 
 std::optional<std::string> Shard::get(const std::string& key) {
+    const auto result = get_with_meta(key);
+    if (!result.found) {
+        return std::nullopt;
+    }
+    return result.value;
+}
+
+ShardGetResult Shard::get_with_meta(const std::string& key) {
     {
         std::shared_lock<std::shared_mutex> read_lock(mutex_);
         auto it = store_.find(key);
         if (it == store_.end()) {
-            return std::nullopt;
+            return {};
         }
 
         const auto now = ExpireManager::now_ms();
         if (!is_expired_unsafe(it->second, now)) {
-            return it->second.value;
+            return ShardGetResult{
+                true,
+                it->second.value,
+                !it->second.has_expire
+            };
         }
     }
 
@@ -63,16 +75,20 @@ std::optional<std::string> Shard::get(const std::string& key) {
         std::unique_lock<std::shared_mutex> write_lock(mutex_);
         auto it = store_.find(key);
         if (it == store_.end()) {
-            return std::nullopt;
+            return {};
         }
 
         const auto now = ExpireManager::now_ms();
         if (is_expired_unsafe(it->second, now)) {
             store_.erase(it);
-            return std::nullopt;
+            return {};
         }
 
-        return it->second.value;
+        return ShardGetResult{
+            true,
+            it->second.value,
+            !it->second.has_expire
+        };
     }
 }
 
@@ -193,21 +209,6 @@ void Shard::clear() {
 
 bool Shard::is_expired_unsafe(const Entry& entry, std::int64_t now_ms) const {
     return ExpireManager::is_expired(entry.has_expire, entry.expire_at_ms, now_ms);
-}
-
-bool Shard::erase_if_expired_with_unique_lock(const std::string& key) {
-    auto it = store_.find(key);
-    if (it == store_.end()) {
-        return false;
-    }
-
-    const auto now = ExpireManager::now_ms();
-    if (is_expired_unsafe(it->second, now)) {
-        store_.erase(it);
-        return true;
-    }
-
-    return false;
 }
 
 }  // namespace lightkv
