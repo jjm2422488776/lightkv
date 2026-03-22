@@ -2,12 +2,14 @@
 
 A lightweight in-memory key-value storage system written in C++17.
 
-## Stage 2 Features
+## Stage 3 Features
 
 - In-memory key-value store
 - Basic CRUD operations
 - TTL expiration support
 - Lazy expiration deletion
+- Sharded storage
+- Thread-safe concurrent access
 - Simple logger
 - Basic config structure
 - CMake-based build
@@ -27,9 +29,11 @@ lightkv/
 │   │   └── config.cpp
 │   ├── core/
 │   │   ├── entry.h
-│   │   ├── kv_store.h
-│   │   ├── kv_store.cpp
 │   │   ├── expire_manager.h
-│   │   └── expire_manager.cpp
+│   │   ├── expire_manager.cpp
+│   │   ├── shard.h
+│   │   ├── shard.cpp
+│   │   ├── kv_store.h
+│   │   └── kv_store.cpp
 └── scripts/
     └── build.sh

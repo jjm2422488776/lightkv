@@ -2,17 +2,19 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <memory>
 #include <optional>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
-#include "core/entry.h"
+#include "core/shard.h"
 
 namespace lightkv {
 
 class KVStore {
 public:
-    KVStore() = default;
+    explicit KVStore(std::size_t shard_count = 16);
     ~KVStore() = default;
 
     void set(const std::string& key, const std::string& value);
@@ -29,12 +31,16 @@ public:
     bool empty() const;
     void clear();
 
-private:
-    bool erase_if_expired(const std::string& key);
-    bool erase_if_expired(std::unordered_map<std::string, Entry>::iterator it);
+    std::size_t shard_count() const;
 
 private:
-    std::unordered_map<std::string, Entry> store_;
+    std::size_t shard_index_for(const std::string& key) const;
+    Shard& shard_for(const std::string& key);
+    const Shard& shard_for(const std::string& key) const;
+
+private:
+    std::vector<std::unique_ptr<Shard>> shards_;
+    std::hash<std::string> hasher_;
 };
 
 }  // namespace lightkv

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(lightkv VERSION 0.1.0 LANGUAGES CXX)
+project(lightkv VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,8 +14,9 @@ set(LIGHTKV_SOURCES
     src/main.cpp
     src/common/logger.cpp
     src/common/config.cpp
-    src/core/kv_store.cpp
     src/core/expire_manager.cpp
+    src/core/shard.cpp
+    src/core/kv_store.cpp
 )
 
 add_executable(lightkv ${LIGHTKV_SOURCES})
