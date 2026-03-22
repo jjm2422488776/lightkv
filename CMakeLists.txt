@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(lightkv VERSION 0.3.0 LANGUAGES CXX)
+project(lightkv VERSION 0.5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,6 +18,9 @@ set(LIGHTKV_SOURCES
     src/core/shard.cpp
     src/core/lru_cache.cpp
     src/core/kv_store.cpp
+    src/concurrency/thread_pool.cpp
+    src/net/protocol.cpp
+    src/net/server.cpp
 )
 
 add_executable(lightkv ${LIGHTKV_SOURCES})
@@ -27,3 +30,6 @@ if (MSVC)
 else()
     target_compile_options(lightkv PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+find_package(Threads REQUIRED)
+target_link_libraries(lightkv PRIVATE Threads::Threads)

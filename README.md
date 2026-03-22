@@ -2,7 +2,7 @@
 
 A lightweight in-memory key-value storage system written in C++17.
 
-## Stage 4 Features
+## Stage 5 Features
 
 - In-memory key-value store
 - Basic CRUD operations
@@ -11,8 +11,9 @@ A lightweight in-memory key-value storage system written in C++17.
 - Sharded storage
 - Thread-safe concurrent access
 - Global LRU hot cache
-- Simple logger
-- Basic config structure
+- Thread pool
+- TCP server
+- Simple text protocol
 - CMake-based build
 
 ## Project Structure
@@ -38,16 +39,13 @@ lightkv/
 │   │   ├── lru_cache.cpp
 │   │   ├── kv_store.h
 │   │   └── kv_store.cpp
+│   ├── concurrency/
+│   │   ├── thread_pool.h
+│   │   └── thread_pool.cpp
+│   └── net/
+│       ├── protocol.h
+│       ├── protocol.cpp
+│       ├── server.h
+│       └── server.cpp
 └── scripts/
     └── build.sh
-## Stage 4 Design
-
-- Main storage uses sharded `unordered_map`.
-- Hot data is accelerated by a global LRU cache.
-- Read path:
-  - check cache first
-  - fallback to main store on miss
-  - refill cache only for keys without TTL
-- TTL is validated in the main store.
-- Keys with TTL are never cached, which avoids stale cache hits after expiration.
-- On TTL updates or deletes, cache entries are invalidated.
