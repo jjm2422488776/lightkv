@@ -10,6 +10,7 @@ struct Config {
     std::string host = "0.0.0.0";
     int port = 7777;
     std::size_t shard_count = 16;
+    std::size_t lru_capacity = 1024;
     bool enable_log_debug = false;
 };
 

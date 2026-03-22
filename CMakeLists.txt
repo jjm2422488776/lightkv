@@ -16,6 +16,7 @@ set(LIGHTKV_SOURCES
     src/common/config.cpp
     src/core/expire_manager.cpp
     src/core/shard.cpp
+    src/core/lru_cache.cpp
     src/core/kv_store.cpp
 )
 

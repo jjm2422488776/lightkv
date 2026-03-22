@@ -8,13 +8,14 @@
 #include <string>
 #include <vector>
 
+#include "core/lru_cache.h"
 #include "core/shard.h"
 
 namespace lightkv {
 
 class KVStore {
 public:
-    explicit KVStore(std::size_t shard_count = 16);
+    explicit KVStore(std::size_t shard_count = 16, std::size_t lru_capacity = 1024);
     ~KVStore() = default;
 
     void set(const std::string& key, const std::string& value);
@@ -32,6 +33,8 @@ public:
     void clear();
 
     std::size_t shard_count() const;
+    std::size_t cache_size() const;
+    std::size_t cache_capacity() const;
 
 private:
     std::size_t shard_index_for(const std::string& key) const;
@@ -40,6 +43,7 @@ private:
 
 private:
     std::vector<std::unique_ptr<Shard>> shards_;
+    LRUCache cache_;
     std::hash<std::string> hasher_;
 };
 
